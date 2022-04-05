@@ -19,7 +19,6 @@ from importer import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    # Auth
-    path('register/', views.registeruser, name='registeruser')
+    path('register/', views.registeruser, name='registeruser'),
+    path('current/', views.currentcontacts, name='currentcontacts')
 ]
