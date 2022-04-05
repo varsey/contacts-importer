@@ -49,6 +49,9 @@ def loginuser(request):
         if user is None:
             msg = 'Username and password did not match'
             return render(request, auth_html, {'form': AuthenticationForm(), 'error': msg})
+        else:
+            login(request, user)
+            return redirect('currentcontacts')
 
 
 def logoutuser(request):
