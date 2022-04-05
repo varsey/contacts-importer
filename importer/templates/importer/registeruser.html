@@ -6,6 +6,7 @@
 </head>
 <body>
     <h2>Please register here</h2>
+        <h3>{{ error }}</h3>
         <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
