@@ -2,7 +2,11 @@ from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
+
+
+def home(request):
+    return render(request, "importer/home.html")
 
 
 def registeruser(request):
@@ -27,6 +31,12 @@ def registeruser(request):
         else:
             msg = 'Passwords did not match'
             return render(request, registeration_html, {'form': UserCreationForm(), 'error': msg})
+
+
+def logoutuser(request):
+    if request.method == "POST":
+        logout(request)
+        return redirect('home')
 
 
 def currentcontacts(request):

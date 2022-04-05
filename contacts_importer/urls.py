@@ -19,6 +19,12 @@ from importer import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Auth
     path('register/', views.registeruser, name='registeruser'),
+    path('logout/', views.logoutuser, name='logoutuser'),
+
+    # Contacts
+    path('', views.home, name='home'),
     path('current/', views.currentcontacts, name='currentcontacts')
 ]
