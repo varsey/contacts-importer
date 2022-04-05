@@ -22,6 +22,7 @@ urlpatterns = [
 
     # Auth
     path('register/', views.registeruser, name='registeruser'),
+    path('login/', views.loginuser, name='loginuser'),
     path('logout/', views.logoutuser, name='logoutuser'),
 
     # Contacts
