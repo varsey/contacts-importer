@@ -1,4 +1,5 @@
 {% extends 'importer/base.html' %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +7,20 @@
     <title>Contacts Page</title>
 </head>
 <body>
+    {% load static %}
     {% block content %}
-    Contacts
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="myfile">
+            <button type="submit">Upload</button>
+        </form>
+
+        {% if result_present %}
+            <p><strong>Result:</strong>
+            <p>Raw data as HTML</p>
+            <p>{{ df|safe }}</p>
+        {% endif %}
+
     {% endblock %}
 </body>
 </html>
