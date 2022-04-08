@@ -79,27 +79,33 @@ def cleartable(request):
         return redirect('contacts')
 
 
-def upload_contacts(request):
-    """main page with contacts importer and viewer"""
+def setcolumns(request):
+    return render(request, "importer/contacts.html", {'hiddenstatus': 'hidden'})
+
+
+def view_upload_contacts(request):
+    """main page with contacts importer and paginated viewer"""
     summary = ""
     if request.method == 'POST' and request.FILES['contacts_file']:
         init_size = Contacts.objects.count()
         csv_file = TextIOWrapper(request.FILES["contacts_file"].file, encoding='utf-8')
         reader = csv.reader(csv_file)
-        _ = next(reader)
+
+        if request.GET.get('header', True):
+            _ = next(reader)
         rowcount = 0
         for row in reader:
             Contacts.objects.get_or_create(
-                Name=row[0],
-                DOB=datetime.strptime(row[1], '%Y-%m-%d'),
-                Phone=row[2],
-                Address=row[3],
-                CreditCard=row[4],
-                Franchise=row[5],
-                Email=row[6],
+                Name=row[int(request.GET.get('name', '1')) - 1],
+                DOB=datetime.strptime(row[int(request.GET.get('dob', '2')) - 1], '%Y-%m-%d'),
+                Phone=row[int(request.GET.get('phone', '3')) - 1],
+                Address=row[int(request.GET.get('address', '4')) - 1],
+                CreditCard=row[int(request.GET.get('cc', '5')) - 1],
+                Franchise=row[int(request.GET.get('franchise', '6')) - 1],
+                Email=row[int(request.GET.get('email', '6')) - 1],
             )
             rowcount += 1
-        summary = f"{Contacts.objects.count() - init_size} out of {rowcount} contacts has been imported\n\n"
+        summary = f"{Contacts.objects.count() - init_size} out of {rowcount} contacts has been imported"
 
     contacts_list = Contacts.objects.order_by("-Email")
     page = request.GET.get('page', 1)

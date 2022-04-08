@@ -9,19 +9,86 @@
 <body>
     {% load static %}
     {% block content %}
+
+        <form action="{% url 'setcolumns' %}">
+            <select name="name">
+                <option value="1" selected="selected">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select> Name
+            <select name="dob">
+                <option value="1">1</option>
+                <option value="2" selected="selected">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select> Date of Birth
+            <select name="phone">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3" selected="selected">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select> Phone
+            <select name="address">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected="selected">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select> Address
+            <select name="cc">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected="selected">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select> CreditCard
+            <select name="franchise">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6" selected="selected">6</option>
+                <option value="7">7</option>
+            </select> Franchise
+            <select name="email">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7" selected="selected">7</option>
+            </select> Email
+            <br>
+            <input type="checkbox" name="header" checked> Header
+            <br>
+            <input type="submit" value="Save settings">
+        </form>
+
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="file" name="contacts_file">
-            <button type="submit">Upload</button>
-        </form>
 
-        <form action="{% url 'cleartable' %}" method="POST">
-                    {% csrf_token %}
-                <button type="submit">Clear contacts</button>
+            <button type="submit" class="btn btn-primary">Upload</button>
         </form>
 
     <table class="table table-bordered">
-        <caption>Contacts</caption>
+        <caption></caption>
         <thead>
         <tr>
             <th>Username</th>
@@ -63,6 +130,7 @@
                 <li><a href="?page={{ i }}">{{ i }}</a></li>
             {% endif %}
         {% endfor %}
+
         {% if contacts.has_next %}
             <li><a href="?page={{ contacts.next_page_number }}">&raquo;</a></li>
         {% else %}
@@ -70,10 +138,14 @@
         {% endif %}
         </ul>
     {% endif %}
+        <br>
 
-    <br><br>
-    {{ summary }}
-
+        <form action="{% url 'cleartable' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Clear contacts</button>
+        </form>
+        <br>
+        {{ summary }}
     {% endblock %}
 
 </body>
