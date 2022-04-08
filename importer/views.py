@@ -59,7 +59,7 @@ def loginuser(request):
             return render(request, auth_html, {'form': AuthenticationForm(), 'error': msg})
         else:
             login(request, user)
-            return redirect('currentcontacts')
+            return redirect('contacts')
 
 
 def logoutuser(request):
@@ -69,7 +69,7 @@ def logoutuser(request):
         return redirect('home')
 
 
-def currentcontacts(request):
+def contacts(request):
     """main page with contacts importer and viewver"""
     if request.method == 'POST' and request.FILES['myfile']:
         myfile = request.FILES['myfile']
@@ -78,8 +78,8 @@ def currentcontacts(request):
         df = pd.read_csv(fs.open(filename))
         return render(
             request,
-            'importer/currentcontacts.html',
+            'importer/contacts.html',
             {'result_present': True, 'df': df.to_html()}
         )
 
-    return render(request, 'importer/currentcontacts.html')
+    return render(request, 'importer/contacts.html')
