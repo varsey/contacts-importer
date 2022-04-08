@@ -72,10 +72,11 @@ def logoutuser(request):
         return redirect('home')
 
 
-def contacts(request):
-    """main page with contacts importer and viewver"""
-    if request.method == 'POST' and request.FILES['myfile']:
-        csv_file = TextIOWrapper(request.FILES["myfile"].file, encoding='utf-8')
+def upload_contacts(request):
+    """main page with contacts importer and viewer"""
+    thecontacts = ''
+    if request.method == 'POST' and request.FILES['contacts_file']:
+        csv_file = TextIOWrapper(request.FILES["contacts_file"].file, encoding='utf-8')
         reader = csv.reader(csv_file)
         _ = next(reader)
         for row in reader:
@@ -89,4 +90,7 @@ def contacts(request):
                 Email=row[6],
             )
 
-    return render(request, 'importer/contacts.html')
+        thecontacts = ContactsDB.objects.all()
+        return render(request, 'importer/contacts.html', {'contacts': thecontacts})
+
+    return render(request, 'importer/contacts.html', {'contacts': thecontacts})

@@ -29,7 +29,7 @@ urlpatterns = [
 
     # Contacts
     path('', views.home, name='home'),
-    path('contacts/', views.contacts, name='contacts'),
+    path('contacts/', views.upload_contacts, name='contacts'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
