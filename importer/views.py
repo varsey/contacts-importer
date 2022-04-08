@@ -1,13 +1,11 @@
 import csv
 from datetime import datetime
 from io import TextIOWrapper
-import pandas as pd
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
-from django.core.files.storage import FileSystemStorage
 from .models import Contacts
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -83,10 +81,13 @@ def cleartable(request):
 
 def upload_contacts(request):
     """main page with contacts importer and viewer"""
+    summary = ""
     if request.method == 'POST' and request.FILES['contacts_file']:
+        init_size = Contacts.objects.count()
         csv_file = TextIOWrapper(request.FILES["contacts_file"].file, encoding='utf-8')
         reader = csv.reader(csv_file)
         _ = next(reader)
+        rowcount = 0
         for row in reader:
             Contacts.objects.get_or_create(
                 Name=row[0],
@@ -97,6 +98,8 @@ def upload_contacts(request):
                 Franchise=row[5],
                 Email=row[6],
             )
+            rowcount += 1
+        summary = f"{Contacts.objects.count() - init_size} out of {rowcount} contacts has been imported\n\n"
 
     contacts_list = Contacts.objects.order_by("-Email")
     page = request.GET.get('page', 1)
@@ -108,4 +111,4 @@ def upload_contacts(request):
     except EmptyPage:
         thecontacts = paginator.page(paginator.num_pages)
 
-    return render(request, 'importer/contacts.html',  {'contacts': thecontacts})
+    return render(request, 'importer/contacts.html',  {'contacts': thecontacts, 'summary': summary})
