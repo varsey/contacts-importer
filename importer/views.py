@@ -1,3 +1,6 @@
+import csv
+from datetime import datetime
+from io import TextIOWrapper
 import pandas as pd
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
@@ -5,7 +8,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.core.files.storage import FileSystemStorage
-
+from .models import ContactsDB
 
 def home(request):
     """homepage. basicaly it's currentcontacts"""
@@ -72,14 +75,18 @@ def logoutuser(request):
 def contacts(request):
     """main page with contacts importer and viewver"""
     if request.method == 'POST' and request.FILES['myfile']:
-        myfile = request.FILES['myfile']
-        fs = FileSystemStorage()
-        filename = fs.save(myfile.name, myfile)
-        df = pd.read_csv(fs.open(filename))
-        return render(
-            request,
-            'importer/contacts.html',
-            {'result_present': True, 'df': df.to_html()}
-        )
+        csv_file = TextIOWrapper(request.FILES["myfile"].file, encoding='utf-8')
+        reader = csv.reader(csv_file)
+        _ = next(reader)
+        for row in reader:
+            ContactsDB.objects.get_or_create(
+                Name=row[0],
+                DOB=datetime.strptime(row[1], '%Y-%m-%d'),
+                Phone=row[2],
+                Address=row[3],
+                CreditCard=row[4],
+                Franchise=row[5],
+                Email=row[6],
+            )
 
     return render(request, 'importer/contacts.html')

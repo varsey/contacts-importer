@@ -15,12 +15,6 @@
             <button type="submit">Upload</button>
         </form>
 
-        {% if result_present %}
-            <p><strong>Result:</strong>
-            <p>Raw data as HTML</p>
-            <p>{{ df|safe }}</p>
-        {% endif %}
-
     {% endblock %}
 </body>
 </html>
