@@ -15,13 +15,55 @@
             <button type="submit">Upload</button>
         </form>
 
+        <form action="{% url 'cleartable' %}" method="POST">
+                    {% csrf_token %}
+                <button type="submit">Clear contacts</button>
+        </form>
+
+    <table class="table table-bordered">
+        <caption>Contacts Imported</caption>
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>First name</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
         {% for contact in contacts %}
-            {{ contact }}
-        {%  endfor %}
+            <tr>
+                <td>{{ contact.Name }}</td>
+                <td>{{ contact.Phone }}</td>
+                <td>{{ contact.Email }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+
+    {% if contacts.has_other_pages %}
+        <ul class="pagination">
+        {% if contacts.has_previous %}
+            <li><a href="?page={{ contacts.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled"><span>&laquo;</span></li>
+        {% endif %}
+
+        {% for i in contacts.paginator.page_range %}
+            {% if contacts.number == i %}
+                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+            {% else %}
+                <li><a href="?page={{ i }}">{{ i }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if contacts.has_next %}
+            <li><a href="?page={{ contacts.next_page_number }}">&raquo;</a></li>
+        {% else %}
+            <li class="disabled"><span>&raquo;</span></li>
+        {% endif %}
+        </ul>
+    {% endif %}
+
     {% endblock %}
-
-
-
 
 </body>
 </html>

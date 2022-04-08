@@ -8,7 +8,9 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.core.files.storage import FileSystemStorage
-from .models import ContactsDB
+from .models import Contacts
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 def home(request):
     """homepage. basicaly it's currentcontacts"""
@@ -72,15 +74,21 @@ def logoutuser(request):
         return redirect('home')
 
 
+def cleartable(request):
+    """clears table"""
+    if request.method == "POST":
+        Contacts.objects.all().delete()
+        return redirect('contacts')
+
+
 def upload_contacts(request):
     """main page with contacts importer and viewer"""
-    thecontacts = ''
     if request.method == 'POST' and request.FILES['contacts_file']:
         csv_file = TextIOWrapper(request.FILES["contacts_file"].file, encoding='utf-8')
         reader = csv.reader(csv_file)
         _ = next(reader)
         for row in reader:
-            ContactsDB.objects.get_or_create(
+            Contacts.objects.get_or_create(
                 Name=row[0],
                 DOB=datetime.strptime(row[1], '%Y-%m-%d'),
                 Phone=row[2],
@@ -90,7 +98,14 @@ def upload_contacts(request):
                 Email=row[6],
             )
 
-        thecontacts = ContactsDB.objects.all()
-        return render(request, 'importer/contacts.html', {'contacts': thecontacts})
+    contacts_list = Contacts.objects.order_by("-Email")
+    page = request.GET.get('page', 1)
+    paginator = Paginator(contacts_list, 3)
+    try:
+        thecontacts = paginator.page(page)
+    except PageNotAnInteger:
+        thecontacts = paginator.page(1)
+    except EmptyPage:
+        thecontacts = paginator.page(paginator.num_pages)
 
-    return render(request, 'importer/contacts.html', {'contacts': thecontacts})
+    return render(request, 'importer/contacts.html',  {'contacts': thecontacts})

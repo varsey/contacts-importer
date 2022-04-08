@@ -30,6 +30,7 @@ urlpatterns = [
     # Contacts
     path('', views.home, name='home'),
     path('contacts/', views.upload_contacts, name='contacts'),
+    path('cleartable/', views.cleartable, name='cleartable'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
