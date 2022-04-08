@@ -25,7 +25,11 @@
         <thead>
         <tr>
             <th>Username</th>
-            <th>First name</th>
+            <th>Date of Birth</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Credit Card</th>
+            <th>Franchise</th>
             <th>Email</th>
         </tr>
     </thead>
@@ -33,7 +37,11 @@
         {% for contact in contacts %}
             <tr>
                 <td>{{ contact.Name }}</td>
+                <td>{{ contact.DOB }}</td>
                 <td>{{ contact.Phone }}</td>
+                <td>{{ contact.Address }}</td>
+                <td>{{ contact.CreditCard }}</td>
+                <td>{{ contact.Franchise }}</td>
                 <td>{{ contact.Email }}</td>
             </tr>
         {% endfor %}
