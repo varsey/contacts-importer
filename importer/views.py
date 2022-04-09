@@ -82,41 +82,55 @@ def cleartable(request):
 
 
 def setcolumns(request):
-    return render(request, "importer/contacts.html", {'hiddenstatus': 'hidden'})
+    return render(request, "importer/contacts.html")
+
+
+def show_summary(init_size: int, rowcount: int):
+    emsg = "Not all contacts from this file imported because they're already exist or incorrect fields format. " \
+           " Please try to set columns order first"
+    summary = f"{Contacts.objects.count() - init_size} out of {rowcount} contacts has been imported \n\n"
+    if Contacts.objects.count() - init_size < rowcount:
+        summary += emsg
+    return summary
 
 
 def view_upload_contacts(request):
     """main page with contacts importer and paginated viewer"""
     summary = ""
-    if request.method == 'POST' and request.FILES['contacts_file']:
-        init_size = Contacts.objects.count()
-        csv_file = TextIOWrapper(request.FILES["contacts_file"].file, encoding='utf-8')
+    if request.method == 'POST':
+        try:
+            init_size = Contacts.objects.count()
+            csv_file = TextIOWrapper(request.FILES["contacts_file"].file, encoding='utf-8')
 
-        reader = csv.reader(csv_file)
-        if request.GET.get('header', True):
-            _ = next(reader)
+            reader = csv.reader(csv_file)
+            if request.GET.get('header', True):
+                _ = next(reader)
 
-        rowcount = 0
-        broken = []
-        for row in reader:
-            try:
-                broken, stop = Logic.name_checker(request, row, broken)
-                if not stop:
-                    Contacts.objects.get_or_create(
-                        Name=row[int(request.GET.get('name', '1')) - 1],
-                        DOB=datetime.strptime(row[int(request.GET.get('dob', '2')) - 1], '%Y-%m-%d'),
-                        Phone=row[int(request.GET.get('phone', '3')) - 1],
-                        Address=row[int(request.GET.get('address', '4')) - 1],
-                        CreditCard=row[int(request.GET.get('cc', '5')) - 1],
-                        Franchise=Logic.select_franchise(),
-                        Email=row[int(request.GET.get('email', '6')) - 1],
-                    )
-            except Exception as ex:
-                error_processor(ex)
+            broken, rowcount = [], 0
+            for row in reader:
+                try:
+                    rowcount += 1
+                    broken, skip_1 = Logic.name_checker(request, row, broken)
+                    broken, skip_2 = Logic.check_empty(request, row, broken)
+                    if not skip_1 + skip_2:
+                        Contacts.objects.get_or_create(
+                            Name=row[int(request.GET.get('name', '1')) - 1],
+                            DOB=datetime.strptime(row[int(request.GET.get('dob', '2')) - 1], '%Y-%m-%d'),
+                            Phone=row[int(request.GET.get('phone', '3')) - 1],
+                            Address=row[int(request.GET.get('address', '4')) - 1],
+                            CreditCard=row[int(request.GET.get('cc', '5')) - 1],
+                            Franchise=Logic.select_franchise(),
+                            Email=row[int(request.GET.get('email', '6')) - 1],
+                        )
+                except Exception as ex:
+                    error_processor(ex)
+                summary = show_summary(init_size, rowcount)
 
-            rowcount += 1
-        summary = f"{Contacts.objects.count() - init_size} out of {rowcount} contacts has been imported"
-        print(broken)
+
+        except Exception as ex:
+            error_processor(ex)
+            return render(request, 'importer/contacts.html', {'contacts': None, 'summary': 'No file attached'})
+
 
     contacts_list = Contacts.objects.order_by("-Email")
     page = request.GET.get('page', 1)

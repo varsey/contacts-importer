@@ -1,18 +1,38 @@
 import random
 from string import punctuation
-
+from .models import Contacts
 
 class Logic():
     @staticmethod
+    def check_empty(request, row, broken):
+        skip = False
+        if (
+                len(str(row[int(request.GET.get('name', '1')) - 1])) == 0
+                or
+                len(str(row[int(request.GET.get('dob', '2')) - 1])) == 0
+                    or
+                    len(str(row[int(request.GET.get('phone', '3')) - 1])) == 0
+                        or
+                        len(str(row[int(request.GET.get('address', '4')) - 1])) == 0
+                            or
+                            len(str(row[int(request.GET.get('cc', '5')) - 1])) == 0
+                                or
+                                len(str(row[int(request.GET.get('email', '6')) - 1])) == 0
+        ):
+            broken.append(row)
+            skip = True
+        return broken, skip
+
+    @staticmethod
     def name_checker(request, row, broken):
         """checks if at least one special character in name"""
-        stop = False
+        skip = False
         for char in [x for x in punctuation if x != '-']:
             if char in row[int(request.GET.get('name', '1')) - 1]:
                 broken.append(row[int(request.GET.get('name', '1')) - 1])
-                stop = True
+                skip = True
                 break
-        return broken, stop
+        return broken, skip
 
 
     @staticmethod
@@ -27,6 +47,7 @@ class Logic():
     def select_franchise():
         """selects franchise from random list"""
         # TO-DO choose based on credit card number
+        random.seed(a=None, version=2)
         fr_list = [
             'American Express',
             'Bankcard',

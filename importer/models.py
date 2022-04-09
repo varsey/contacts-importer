@@ -7,6 +7,6 @@ class Contacts(models.Model):
     DOB = models.DateField()
     Phone = models.CharField(max_length=200)
     Address = models.TextField()
-    CreditCard = models.IntegerField(max_length=19)
+    CreditCard = models.IntegerField()
     Franchise = models.CharField(max_length=40)
     Email = models.CharField(max_length=100)
