@@ -9,7 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from .models import Contacts
-from .logic import name_checker
+from .logic import Logic
 
 
 def home(request):
@@ -100,7 +100,7 @@ def view_upload_contacts(request):
         broken = []
         for row in reader:
             try:
-                broken, stop = name_checker(request, row, broken)
+                broken, stop = Logic.name_checker(request, row, broken)
                 if not stop:
                     Contacts.objects.get_or_create(
                         Name=row[int(request.GET.get('name', '1')) - 1],
@@ -108,7 +108,7 @@ def view_upload_contacts(request):
                         Phone=row[int(request.GET.get('phone', '3')) - 1],
                         Address=row[int(request.GET.get('address', '4')) - 1],
                         CreditCard=row[int(request.GET.get('cc', '5')) - 1],
-                        Franchise=row[int(request.GET.get('franchise', '6')) - 1],
+                        Franchise=Logic.select_franchise(),
                         Email=row[int(request.GET.get('email', '6')) - 1],
                     )
             except Exception as ex:
@@ -132,8 +132,8 @@ def view_upload_contacts(request):
 
 
 def error_processor(ex: Exception) -> None:
-    """обработчик сообщений об ошибке"""
+    """error processor"""
+    # TO-DO return message for log or add logging
     print("An exception of type {0} occurred. Arguments:\n{1!r}".format(type(ex).__name__, ex.args))
     [print(item) for item in traceback.format_exception(type(ex), ex, ex.__traceback__)]
-    print('Done with error...')
     return None
