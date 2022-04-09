@@ -7,7 +7,9 @@
 </head>
 <body>
     {% block content %}
-    Please upload your data on <a href="{% url 'contacts' %}">contacts page</a>
+        {% if user.is_authenticated %}
+        Please upload your data on <a href="{% url 'contacts' %}">contacts page</a>
+        {% endif %}
     {% endblock %}
 </body>
 </html>

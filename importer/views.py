@@ -15,7 +15,7 @@ from .logic import Logic
 
 
 def home(request):
-    """homepage. basicaly it's currentcontacts"""
+    """homepage"""
     return render(request, "importer/home.html")
 
 
@@ -36,7 +36,7 @@ def registeruser(request):
                     )
                     user.save()
                     login(request, user)
-                    return redirect('currentcontacts')
+                    return redirect('contacts')
 
                 except IntegrityError:
                     msg = 'That username has been already been taken. Please choose a new username'
@@ -173,7 +173,7 @@ def error_processor(ex: Exception) -> str:
 
 def csv_background_process():
     """main csv data import process"""
-    # TO-DO -
+    # TO-DO - move common variable to separate class
     summary = ""
     init_size = Contacts.objects.count()
     csv_file = open(os.getcwd() + "/sample_files/sample-1.csv")
