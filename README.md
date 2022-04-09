@@ -6,7 +6,15 @@ Django project. Imports contact info line by line from csv file
 
     git clone https://github.com/varsey/contacts-importer
 
+ 
+_
+
+    cd contacts-importer/
+_
+   
     python3 -m venv .
+ 
+   _
    
     git clone https://github.com/varsey/contacts-importer source ./bin/activate
 
