@@ -94,7 +94,7 @@
         {% for contact in contacts %}
             <tr>
                 <td>{{ contact.Name }}</td>
-                <td>{{ contact.DOB }}</td>
+                <td>{{ contact.DOB|date:"Y F d"  }}</td>
                 <td>{{ contact.Phone }}</td>
                 <td>{{ contact.Address }}</td>
                 <td> XXX XXXX XXXX {{ contact.CreditCard|make_list|slice:'-4:'|join:'' }}</td>
