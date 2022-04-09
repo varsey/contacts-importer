@@ -85,18 +85,19 @@ def setcolumns(request):
     return render(request, "importer/contacts.html")
 
 
-def show_summary(init_size: int, rowcount: int):
+def show_summary(init_size: int, rowcount: int, err: str):
     emsg = "Not all contacts from this file imported because they're already exist or incorrect fields format. " \
            " Please try to set columns order first"
-    summary = f"{Contacts.objects.count() - init_size} out of {rowcount} contacts has been imported \n\n"
+    summary = f"{Contacts.objects.count() - init_size} out of {rowcount} contacts has been imported."
     if Contacts.objects.count() - init_size < rowcount:
         summary += emsg
-    return summary
+    return summary + err
 
 
 def view_upload_contacts(request):
     """main page with contacts importer and paginated viewer"""
     summary = ""
+    contacts_template = 'importer/contacts.html'
     if request.method == 'POST':
         try:
             init_size = Contacts.objects.count()
@@ -123,13 +124,15 @@ def view_upload_contacts(request):
                             Email=row[int(request.GET.get('email', '6')) - 1],
                         )
                 except Exception as ex:
-                    error_processor(ex)
-                summary = show_summary(init_size, rowcount)
+                    err = error_processor(ex)
+                    summary = show_summary(init_size, rowcount, err)
+                    return render(request, contacts_template, {'contacts': None, 'summary': summary})
+                summary = show_summary(init_size, rowcount, "")
 
 
         except Exception as ex:
             error_processor(ex)
-            return render(request, 'importer/contacts.html', {'contacts': None, 'summary': 'No file attached'})
+            return render(request, contacts_template, {'contacts': None, 'summary': 'No file attached'})
 
 
     contacts_list = Contacts.objects.order_by("-Email")
@@ -142,12 +145,13 @@ def view_upload_contacts(request):
     except EmptyPage:
         thecontacts = paginator.page(paginator.num_pages)
 
-    return render(request, 'importer/contacts.html',  {'contacts': thecontacts, 'summary': summary})
+    return render(request, contacts_template,  {'contacts': thecontacts, 'summary': summary})
 
 
-def error_processor(ex: Exception) -> None:
+def error_processor(ex: Exception) -> str:
     """error processor"""
     # TO-DO return message for log or add logging
     print("An exception of type {0} occurred. Arguments:\n{1!r}".format(type(ex).__name__, ex.args))
-    [print(item) for item in traceback.format_exception(type(ex), ex, ex.__traceback__)]
-    return None
+    msg = [item for item in traceback.format_exception(type(ex), ex, ex.__traceback__)]
+    print(msg)
+    return msg[-1]
