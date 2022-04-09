@@ -1,8 +1,14 @@
 # contacts-importer
 Django project. Imports contact info line by line from csv file
 
-### Development
+### Instructions
 
+
+    git clone https://github.com/varsey/contacts-importer
+
+    python3 -m venv .
+   
+    git clone https://github.com/varsey/contacts-importer source ./bin/activate
 
 Install dependencies
 
