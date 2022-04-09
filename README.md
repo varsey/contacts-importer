@@ -41,13 +41,11 @@ Sample file to try:
     use selectors and "save settings" (select "2" for  Name and "1" for Date of Birth) button before upload
  3) sample_files/sample-3.csv - special characters in name and empty fields in file, see summary for errors
 
-See logs for errors and number of records saved
+Click "Clear records" to empty database and then "Run import in background" button for scheduling import from file every 30 secs
 
-Click "Clear records" to empty database and then "Run import in background" button for scheduling import from file every 5 secs
-
-Run command (in separate console, activate venv if needed) - do nnothing and in 30 secs data is gonna be imported from sample_files/sample-1.csv
+Run command (in separate console, activate venv if needed) - do nothing and in 30 secs data is gonna be imported from sample_files/sample-1.csv
 
     python manage.py process_tasks
 
 
-Update http://127.0.0.1:8000/contacts/ page in 5 secs to see data imported
+Update http://127.0.0.1:8000/contacts/ page in 30 secs to see data imported
