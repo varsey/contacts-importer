@@ -97,7 +97,7 @@
                 <td>{{ contact.DOB }}</td>
                 <td>{{ contact.Phone }}</td>
                 <td>{{ contact.Address }}</td>
-                <td>{{ contact.CreditCard }}</td>
+                <td> XXX XXXX XXXX {{ contact.CreditCard|make_list|slice:'-4:'|join:'' }}</td>
                 <td>{{ contact.Franchise }}</td>
                 <td>{{ contact.Email }}</td>
             </tr>
