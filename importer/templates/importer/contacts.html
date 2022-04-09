@@ -132,10 +132,11 @@
 
         <form action="{% url 'cleartable' %}" method="POST">
             {% csrf_token %}
-            <button type="submit" class="btn btn-warning">Clear contacts</button>
+            <button type="submit" class="btn btn-warning">Clear records</button>
         </form>
         <br>
         {{ summary }}
+                <a href="{%  url 'home' %}" class="btn btn-info">Home Page</a>
     {% endblock %}
 
 </body>
