@@ -13,11 +13,12 @@ _
 _
    
     python3 -m venv .
- 
-   _
-   
-    git clone https://github.com/varsey/contacts-importer source ./bin/activate
+ _
 
+
+    source ./bin/activate
+
+ 
 Install dependencies
 
     pip install -r requirements.txt
@@ -44,7 +45,7 @@ See logs for errors and number of records saved
 
 Click "Clear records" to empty database and then "Run import in background" button for scheduling import from file every 5 secs
 
-Run command (in separate console)
+Run command (in separate console, activate venv if needed) - do nnothing and in 30 secs data is gonna be imported from sample_files/sample-1.csv
 
     python manage.py process_tasks
 

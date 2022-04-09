@@ -204,6 +204,6 @@ def csv_background_process():
     return broken, summary
 
 
-@background(schedule=5)
+@background(schedule=30)
 def run_background_import():
     csv_background_process()
