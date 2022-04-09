@@ -134,9 +134,14 @@
             {% csrf_token %}
             <button type="submit" class="btn btn-warning">Clear records</button>
         </form>
+        <form action="{% url 'run_bgt' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Run import in background</button>
+        </form>
         <br>
         {{ summary }}
-                <a href="{%  url 'home' %}" class="btn btn-info">Home Page</a>
+        <br><br>
+        <a href="{%  url 'home' %}" class="btn btn-info">Home Page</a>
     {% endblock %}
 
 </body>

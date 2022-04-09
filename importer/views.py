@@ -1,4 +1,5 @@
 import csv
+import os
 import traceback
 from datetime import datetime
 from io import TextIOWrapper
@@ -8,6 +9,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
+from background_task import background
 from .models import Contacts
 from .logic import Logic
 
@@ -78,7 +80,13 @@ def cleartable(request):
     """clears table"""
     if request.method == "POST":
         Contacts.objects.all().delete()
-        return redirect('contacts')
+    return redirect('contacts')
+
+def start_background_task(request):
+    """clears table"""
+    if request.method == "POST":
+        run_background_import()
+    return redirect('contacts')
 
 
 def setcolumns(request):
@@ -94,46 +102,52 @@ def show_summary(init_size: int, rowcount: int, err: str):
     return summary + err
 
 
+def csv_process(request):
+    """main csv data import process"""
+    summary = ""
+    init_size = Contacts.objects.count()
+    csv_file = TextIOWrapper(request.FILES["contacts_file"].file, encoding='utf-8')
+
+    reader = csv.reader(csv_file)
+    if request.GET.get('header', True):
+        _ = next(reader)
+
+    broken, rowcount = [], 0
+    for row in reader:
+        try:
+            rowcount += 1
+            broken, skip_1 = Logic.name_checker(request, row, broken)
+            broken, skip_2 = Logic.check_empty(request, row, broken)
+            if not skip_1 + skip_2:
+                Contacts.objects.get_or_create(
+                    Name=row[int(request.GET.get('name', '1')) - 1],
+                    DOB=datetime.strptime(row[int(request.GET.get('dob', '2')) - 1], '%Y-%m-%d'),
+                    Phone=row[int(request.GET.get('phone', '3')) - 1],
+                    Address=row[int(request.GET.get('address', '4')) - 1],
+                    CreditCard=row[int(request.GET.get('cc', '5')) - 1],
+                    Franchise=Logic.select_franchise(),
+                    Email=row[int(request.GET.get('email', '6')) - 1],
+                )
+        except Exception as ex:
+            err = error_processor(ex)
+            summary = show_summary(init_size, rowcount, err)
+            continue
+        summary = show_summary(init_size, rowcount, "")
+    return broken, summary
+
+
 def view_upload_contacts(request):
     """main page with contacts importer and paginated viewer"""
+    # TO-DO "prerun save settings" button functionality
     summary = ""
     contacts_template = 'importer/contacts.html'
     if request.method == 'POST':
         try:
-            init_size = Contacts.objects.count()
-            csv_file = TextIOWrapper(request.FILES["contacts_file"].file, encoding='utf-8')
-
-            reader = csv.reader(csv_file)
-            if request.GET.get('header', True):
-                _ = next(reader)
-
-            broken, rowcount = [], 0
-            for row in reader:
-                try:
-                    rowcount += 1
-                    broken, skip_1 = Logic.name_checker(request, row, broken)
-                    broken, skip_2 = Logic.check_empty(request, row, broken)
-                    if not skip_1 + skip_2:
-                        Contacts.objects.get_or_create(
-                            Name=row[int(request.GET.get('name', '1')) - 1],
-                            DOB=datetime.strptime(row[int(request.GET.get('dob', '2')) - 1], '%Y-%m-%d'),
-                            Phone=row[int(request.GET.get('phone', '3')) - 1],
-                            Address=row[int(request.GET.get('address', '4')) - 1],
-                            CreditCard=row[int(request.GET.get('cc', '5')) - 1],
-                            Franchise=Logic.select_franchise(),
-                            Email=row[int(request.GET.get('email', '6')) - 1],
-                        )
-                except Exception as ex:
-                    err = error_processor(ex)
-                    summary = show_summary(init_size, rowcount, err)
-                    return render(request, contacts_template, {'contacts': None, 'summary': summary})
-                summary = show_summary(init_size, rowcount, "")
-
-
+            broken, summary = csv_process(request)
         except Exception as ex:
             error_processor(ex)
-            return render(request, contacts_template, {'contacts': None, 'summary': 'No file attached'})
-
+            msg = 'Something went wrong or no file attached'
+            return render(request, contacts_template, {'contacts': None, 'summary': msg})
 
     contacts_list = Contacts.objects.order_by("-Email")
     page = request.GET.get('page', 1)
@@ -155,3 +169,41 @@ def error_processor(ex: Exception) -> str:
     msg = [item for item in traceback.format_exception(type(ex), ex, ex.__traceback__)]
     print(msg)
     return msg[-1]
+
+
+def csv_background_process():
+    """main csv data import process"""
+    # TO-DO -
+    summary = ""
+    init_size = Contacts.objects.count()
+    csv_file = open(os.getcwd() + "/sample_files/sample-1.csv")
+
+    reader = csv.reader(csv_file)
+    # TO-DO consider implementing header logic
+    _ = next(reader)
+
+    broken, rowcount = [], 0
+    for row in reader:
+        try:
+            rowcount += 1
+            Contacts.objects.get_or_create(
+                Name=row[0],
+                DOB=datetime.strptime(row[1], '%Y-%m-%d'),
+                Phone=row[2],
+                Address=row[3],
+                CreditCard=row[4],
+                Franchise=Logic.select_franchise(),
+                Email=row[5],
+            )
+        except Exception as ex:
+            err = error_processor(ex)
+            summary = show_summary(init_size, rowcount, err)
+            continue
+        summary = show_summary(init_size, rowcount, "")
+    csv_file.close()
+    return broken, summary
+
+
+@background(schedule=5)
+def run_background_import():
+    csv_background_process()

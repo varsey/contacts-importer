@@ -31,6 +31,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('contacts/', views.view_upload_contacts, name='contacts'),
     path('cleartable/', views.cleartable, name='cleartable'),
+    path('run_background_task/', views.start_background_task, name='run_bgt'),
     path('contacts/', views.setcolumns, name='setcolumns'),
 ]
 

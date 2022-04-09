@@ -23,5 +23,16 @@ For tests: binary chrome driver for test (to be unpacked to env/bin dir):
 Sample file to try:
  1) sample_files/sample-1.csv - normal file for default upload
  2) sample_files/sample-2.csv - file for upload with Date of Birth in 1st column and Name in 2nd.
-    use selectors and "save settings" button before upload
+    use selectors and "save settings" (select "2" for  Name and "1" for Date of Birth) button before upload
  3) sample_files/sample-3.csv - special characters in name and empty fields in file, see summary for errors
+
+See logs for errors and number of records saved
+
+Click "Clear records" to empty database and then "Run import in background" button for scheduling import from file every 5 secs
+
+Run command (in separate console)
+
+    python manage.py process_tasks
+
+
+Update http://127.0.0.1:8000/contacts/ page in 5 secs to see data imported
