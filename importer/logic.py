@@ -2,6 +2,7 @@ import random
 from string import punctuation
 from creditcardmeta import CC_META
 
+
 class Logic():
     @staticmethod
     def validate_for_empty(request, row, broken: list):
@@ -9,17 +10,17 @@ class Logic():
         skip = False
         if (
                 len(str(row[int(request.GET.get('name', '1')) - 1])) == 0
-                    or
-                    len(str(row[int(request.GET.get('dob', '2')) - 1])) == 0
-                        or
-                        len(str(row[int(request.GET.get('phone', '3')) - 1])) == 0
-                            or
-                            len(str(row[int(request.GET.get('address', '4')) - 1])) == 0
-                                or
-                                len(str(row[int(request.GET.get('cc', '5')) - 1])) == 0
-                                    or
-                                    len(str(row[int(request.GET.get('email', '6')) - 1])) == 0
-            ):
+                or
+                len(str(row[int(request.GET.get('dob', '2')) - 1])) == 0
+                or
+                len(str(row[int(request.GET.get('phone', '3')) - 1])) == 0
+                or
+                len(str(row[int(request.GET.get('address', '4')) - 1])) == 0
+                or
+                len(str(row[int(request.GET.get('cc', '5')) - 1])) == 0
+                or
+                len(str(row[int(request.GET.get('email', '6')) - 1])) == 0
+        ):
             broken.append(row)
             skip = True
         return broken, skip
