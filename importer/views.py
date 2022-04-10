@@ -1,5 +1,6 @@
-import csv
 import os
+import csv
+import uuid
 import traceback
 from datetime import datetime
 from io import TextIOWrapper
@@ -10,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from background_task import background
-from .models import Contacts
+from .models import Contacts, CsvJobs
 from .logic import Logic
 
 
@@ -82,6 +83,7 @@ def cleartable(request):
         Contacts.objects.all().delete()
     return redirect('contacts')
 
+
 def start_background_task(request):
     """clears table"""
     if request.method == "POST":
@@ -93,13 +95,15 @@ def setcolumns(request):
     return render(request, "importer/contacts.html")
 
 
-def show_summary(init_size: int, rowcount: int, err: str):
+def upd_summary(init_size: int, rowcount: int, err: str, broken):
     emsg = "Not all contacts from this file imported because they're already exist or incorrect fields format. " \
            " Please try to set columns order first"
-    summary = f"{Contacts.objects.count() - init_size} out of {rowcount} contacts has been imported."
-    if Contacts.objects.count() - init_size < rowcount:
+    nunprocessed = Contacts.objects.count() - init_size
+    summary = f"{nunprocessed} out of {rowcount} contacts has been imported."
+    if nunprocessed < rowcount:
         summary += emsg
-    return summary + err
+    summary += broken + err
+    return summary
 
 
 def csv_process(request):
@@ -130,9 +134,11 @@ def csv_process(request):
                 )
         except Exception as ex:
             err = error_processor(ex)
-            summary = show_summary(init_size, rowcount, err)
+            summary = upd_summary(init_size, rowcount, str(broken), err)
             continue
-        summary = show_summary(init_size, rowcount, "")
+
+        summary = upd_summary(init_size, rowcount, str(broken), "")
+
     return broken, summary
 
 
@@ -142,12 +148,27 @@ def view_upload_contacts(request):
     summary = ""
     contacts_template = 'importer/contacts.html'
     if request.method == 'POST':
+        job_id = str(uuid.uuid4())
+        CsvJobs.objects.get_or_create(
+            job_id=job_id,
+            status='Processing',
+            created_at=datetime.now(),
+        )
         try:
             broken, summary = csv_process(request)
+
+            job = CsvJobs.objects.get(job_id=job_id)
+            job.status = "Finished"
+            job.save()
+
         except Exception as ex:
-            error_processor(ex)
+            job = CsvJobs.objects.get(job_id=job_id)
+            job.status = "Failed"
+            job.save()
+
+            err = error_processor(ex)
             msg = 'Something went wrong or no file attached'
-            return render(request, contacts_template, {'contacts': None, 'summary': msg})
+            return render(request, contacts_template, {'contacts': None, 'summary': err + ' ' + msg})
 
     contacts_list = Contacts.objects.order_by("-Email")
     page = request.GET.get('page', 1)
@@ -186,6 +207,7 @@ def csv_background_process():
     for row in reader:
         try:
             rowcount += 1
+            # TO-DO validators with errors to log file
             Contacts.objects.get_or_create(
                 Name=row[0],
                 DOB=datetime.strptime(row[1], '%Y-%m-%d'),
@@ -197,9 +219,9 @@ def csv_background_process():
             )
         except Exception as ex:
             err = error_processor(ex)
-            summary = show_summary(init_size, rowcount, err)
+            summary = upd_summary(init_size, rowcount, err, "")
             continue
-        summary = show_summary(init_size, rowcount, "")
+        summary = upd_summary(init_size, rowcount, "", "")
     csv_file.close()
     return broken, summary
 

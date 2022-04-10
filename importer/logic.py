@@ -1,6 +1,6 @@
 import random
 from string import punctuation
-from creditcardmeta import CC_META
+from .creditcardmeta import CC_META
 
 
 class Logic():
@@ -31,7 +31,7 @@ class Logic():
         skip = False
         for char in [x for x in punctuation if x != '-']:
             if char in row[int(request.GET.get('name', '1')) - 1]:
-                broken.append(row[int(request.GET.get('name', '1')) - 1])
+                broken.append(row)
                 skip = True
                 break
         return broken, skip
