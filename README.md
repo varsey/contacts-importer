@@ -2,18 +2,17 @@
 Django project. Imports contact info line by line from csv file
 
 ### Instructions
-
+Clone project
 
     git clone https://github.com/varsey/contacts-importer
 
- 
-_
+Go to project directory
 
     cd contacts-importer/
-_
+Create virtual environment
    
     python3 -m venv .
- _
+Activate virtual enviroment
 
 
     source ./bin/activate
@@ -38,12 +37,12 @@ For tests: binary chrome driver for test (to be unpacked to env/bin dir):
 Sample file to try:
  1) sample_files/sample-1.csv - normal file for default upload
  2) sample_files/sample-2.csv - file for upload with Date of Birth in 1st column and Name in 2nd.
-    use selectors and "save settings" (select "2" for  Name and "1" for Date of Birth) button before upload
+    Use selectors (select "2" for  Name and "1" for Date of Birth) and hit "save settings"  button before upload
  3) sample_files/sample-3.csv - special characters in name and empty fields in file, see summary for errors
 
 Click "Clear records" to empty database and then "Run import in background" button for scheduling import from file every 30 secs
 
-Run command (in separate console, activate venv if needed) - do nothing and in 30 secs data is gonna be imported from sample_files/sample-1.csv
+Run command (in separate console, activate venv if needed) - do nothing and in 30 secs data is gonna be imported from sample_files/sample-1.csv, just refresh page to see
 
     python manage.py process_tasks
 

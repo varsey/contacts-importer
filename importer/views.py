@@ -116,8 +116,8 @@ def csv_process(request):
     for row in reader:
         try:
             rowcount += 1
-            broken, skip_1 = Logic.name_checker(request, row, broken)
-            broken, skip_2 = Logic.check_empty(request, row, broken)
+            broken, skip_1 = Logic.validate_name(request, row, broken)
+            broken, skip_2 = Logic.validate_for_empty(request, row, broken)
             if not skip_1 + skip_2:
                 Contacts.objects.get_or_create(
                     Name=row[int(request.GET.get('name', '1')) - 1],
@@ -153,13 +153,13 @@ def view_upload_contacts(request):
     page = request.GET.get('page', 1)
     paginator = Paginator(contacts_list, 3)
     try:
-        thecontacts = paginator.page(page)
+        the_contacts = paginator.page(page)
     except PageNotAnInteger:
-        thecontacts = paginator.page(1)
+        the_contacts = paginator.page(1)
     except EmptyPage:
-        thecontacts = paginator.page(paginator.num_pages)
+        the_contacts = paginator.page(paginator.num_pages)
 
-    return render(request, contacts_template,  {'contacts': thecontacts, 'summary': summary})
+    return render(request, contacts_template,  {'contacts': the_contacts, 'summary': summary})
 
 
 def error_processor(ex: Exception) -> str:
